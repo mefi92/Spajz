@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SpajzManager.Api.Models;
 
 namespace SpajzManager.Api.Controllers
 {
@@ -7,14 +8,23 @@ namespace SpajzManager.Api.Controllers
     public class HouseholdItemsController : ControllerBase
     {
         [HttpGet]
-        public JsonResult GetHouseholdItems()
+        public ActionResult<IEnumerable<HouseholdItemDto>> GetHouseholdItems()
         {
-            return new JsonResult(
-                new List<object>
-                {
-                    new { id = 1, Name = "Alma"},
-                    new { id = 2, Name = "Tej"}
-                });
+            return Ok(HouseholdItemDataStore.Current.HouseholdItems);
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<HouseholdItemDto> GetHouseholdItem(int id)
+        {
+            var itemToReturn = HouseholdItemDataStore.Current
+                .HouseholdItems.FirstOrDefault(i => i.Id == id);
+
+            if (itemToReturn == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(itemToReturn);            
         }
     }
 }
