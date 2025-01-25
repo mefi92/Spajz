@@ -22,7 +22,7 @@ namespace SpajzManager.Api.Controllers
             return Ok(household.Items);
         }
 
-        [HttpGet("householditemid")]
+        [HttpGet("householditemid", Name = "GetHouseholdItem")]
         public ActionResult<HouseholdItemDto> GetHouseholdItem(
             int householdId, int householdItemId) 
         {
@@ -40,6 +40,40 @@ namespace SpajzManager.Api.Controllers
             }
 
             return Ok(item);
+        }
+
+        [HttpPost]
+        public ActionResult<HouseholdItemDto> CreateHouseholdItem(
+            int householdId, 
+            HouseholdItemForCreationDto householdItem)
+        {
+            var household = HouseholdDataStore.Current.Households
+                .FirstOrDefault(h => h.Id == householdId);
+            if (household == null)
+            {
+                return NotFound();
+            }
+
+            // temporary - to be improved
+            var maxHouseholdItemId = HouseholdDataStore.Current.Households
+                .SelectMany(h => h.Items).Max(i => i.Id);
+
+            var finalHouseholdItem = new HouseholdItemDto()
+            {
+                Id = ++maxHouseholdItemId,
+                Name = householdItem.Name,
+                Description = householdItem.Description,
+            };
+
+            household.Items.Add(finalHouseholdItem);
+
+            return CreatedAtRoute("GetHouseholdItem",
+                new
+                {
+                    householdId,
+                    householdItemId = finalHouseholdItem.Id
+                },
+                finalHouseholdItem);
         }
     }
 }
