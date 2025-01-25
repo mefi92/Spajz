@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SpajzManager.Api.Models;
 
@@ -22,7 +23,7 @@ namespace SpajzManager.Api.Controllers
             return Ok(household.Items);
         }
 
-        [HttpGet("householditemid", Name = "GetHouseholdItem")]
+        [HttpGet("{householditemid}", Name = "GetHouseholdItem")]
         public ActionResult<HouseholdItemDto> GetHouseholdItem(
             int householdId, int householdItemId) 
         {
@@ -74,6 +75,98 @@ namespace SpajzManager.Api.Controllers
                     householdItemId = finalHouseholdItem.Id
                 },
                 finalHouseholdItem);
+        }
+
+        [HttpPut("{householditemid}")]
+        public ActionResult<HouseholdItemDto> UpdateHouseholdItem(
+            int householdId, int householdItemId,
+            HouseholdItemForUpdateDto householdItem)
+        {
+            var household = HouseholdDataStore.Current.Households
+                .FirstOrDefault(h => h.Id == householdId);
+            if (household == null) 
+            {
+                return NotFound(); 
+            }
+
+            var householdItemFromStore = household.Items
+                .FirstOrDefault(i => i.Id == householdItemId);
+            if (householdItemFromStore == null)
+            {
+                return NotFound();
+            }
+
+            householdItemFromStore.Name = householdItem.Name;
+            householdItemFromStore.Description = householdItem.Description;
+
+            return NoContent();
+        }
+
+        [HttpPatch("{householditemid}")]
+        public ActionResult PartiallyUpdateHouseholdItem(
+            int householdId, int householdItemId,
+            JsonPatchDocument<HouseholdItemForUpdateDto> patchDocument)
+        {
+            var household = HouseholdDataStore.Current.Households
+                .FirstOrDefault(h => h.Id == householdId);
+            if (household == null)
+            {
+                return NotFound();
+            }
+
+            var householdItemFromStore = household.Items
+                .FirstOrDefault(i => i.Id == householdItemId);
+            if (householdItemFromStore == null)
+            {
+                return NotFound();
+            }
+
+            var householdItemToPatch =
+                new HouseholdItemForUpdateDto()
+                {
+                    Name = householdItemFromStore.Name,
+                    Description = householdItemFromStore.Description
+                };
+
+            patchDocument.ApplyTo(householdItemToPatch, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!TryValidateModel(householdItemToPatch))
+            {
+                return BadRequest();
+            }
+
+            householdItemFromStore.Name = householdItemToPatch.Name;
+            householdItemFromStore.Description = householdItemToPatch.Description;
+
+            return NoContent();
+        }
+
+        [HttpDelete("{householditemid}")]
+        public ActionResult DeleteHouseholdItem(
+            int householdId, int householdItemId)
+        {
+            var household = HouseholdDataStore.Current.Households
+                .FirstOrDefault(h => h.Id == householdId);
+            if (household == null)
+            {
+                return NotFound();
+            }
+
+            var householdItemFromStore = household.Items
+                .FirstOrDefault(i => i.Id == householdItemId);
+            if (householdItemFromStore == null)
+            {
+                return NotFound();
+            }
+
+            household.Items.Remove(householdItemFromStore);
+
+            return NoContent();
         }
     }
 }
