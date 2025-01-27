@@ -5,7 +5,7 @@
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public int NumberOfHouseholdItems
+        public int NumberOfItems
         {
             get
             {
@@ -13,8 +13,8 @@
             }
         }       
 
-        public ICollection<HouseholdItemDto> Items { get; set; } 
-            = new List<HouseholdItemDto>();
+        public ICollection<ItemDto> Items { get; set; } 
+            = new List<ItemDto>();
         
     }
 }

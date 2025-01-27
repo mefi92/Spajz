@@ -2,7 +2,7 @@
 
 namespace SpajzManager.Api.Models
 {
-    public class HouseholdItemForUpdateDto
+    public class ItemForCreationDto
     {
         [Required(ErrorMessage = "You should provide a name value.")]
         [MaxLength(50)]

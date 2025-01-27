@@ -17,17 +17,17 @@ namespace SpajzManager.Api
                     Id = 1,
                     Name = "Városlődi kecó",
                     Description = "Szülői ház",
-                    Items = new List<HouseholdItemDto>()
+                    Items = new List<ItemDto>()
                     {
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 1,
                             Name = "Alma",
                             Description = "gyümölcs"},
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 2,
                             Name = "Tej",
                             Description = "egyenesen a tehénből"},
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 3,
                             Name = "Brokkoli",
                             Description = "utlimate zöldség"}
@@ -38,13 +38,13 @@ namespace SpajzManager.Api
                     Id = 2,
                     Name = "Palotai kégli",
                     Description = "Albérlet",
-                    Items = new List<HouseholdItemDto>()
+                    Items = new List<ItemDto>()
                     {
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 1,
                             Name = "Zabtej",
                             Description = "Vegán zab ital"},
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 2,
                             Name = "Humusz",
                             Description = "Natúr, homemade"}
@@ -55,13 +55,13 @@ namespace SpajzManager.Api
                     Id = 3,
                     Name = "Györöki kisház",
                     Description = "Nyaraló",
-                    Items = new List<HouseholdItemDto>()
+                    Items = new List<ItemDto>()
                     {
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 1,
                             Name = "Kávé",
                             Description = "instant"},
-                        new HouseholdItemDto() {
+                        new ItemDto() {
                             Id = 2,
                             Name = "Oliva olaj",
                             Description = "extra szűz"}

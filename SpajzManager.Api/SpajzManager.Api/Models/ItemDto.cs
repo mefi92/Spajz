@@ -1,6 +1,6 @@
 ﻿namespace SpajzManager.Api.Models
 {
-    public class HouseholdItemDto
+    public class ItemDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
