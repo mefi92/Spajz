@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.StaticFiles;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 using SpajzManager.Api;
+using SpajzManager.Api.DbContexts;
 using SpajzManager.Api.Services;
 
 Log.Logger = new LoggerConfiguration()
@@ -36,6 +38,14 @@ builder.Services.AddTransient<IMailService, LocalMailService>();
 builder.Services.AddTransient<IMailService, CloudMailService>();
 #endif
 builder.Services.AddSingleton<HouseholdDataStore>();
+
+builder.Services.AddDbContext<SpajzManagerContext>(dbContextOptions
+    => dbContextOptions.UseSqlite(
+        builder.Configuration["ConnectionStrings:SpajzManagerDBConnectionString"]));
+
+builder.Services.AddScoped<ISpajzManagerRepository, SpajzManagerRepository>();
+
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
 var app = builder.Build();
 

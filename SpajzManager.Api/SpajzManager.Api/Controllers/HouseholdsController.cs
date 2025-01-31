@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using SpajzManager.Api.Models;
+using SpajzManager.Api.Services;
 
 namespace SpajzManager.Api.Controllers
 {
@@ -7,31 +9,41 @@ namespace SpajzManager.Api.Controllers
     [Route("api/households")]
     public class HouseholdsController : ControllerBase
     {
-        private readonly HouseholdDataStore _householdDataStore;
+        private readonly ISpajzManagerRepository _spajzManagerRepository;
+        private readonly IMapper _mapper;
 
-        public HouseholdsController(HouseholdDataStore householdDataStore) 
+        public HouseholdsController(ISpajzManagerRepository spajzManagerRepository,
+            IMapper mapper) 
         {
-            _householdDataStore = householdDataStore ?? throw new AggregateException(nameof(householdDataStore));
+            _spajzManagerRepository = spajzManagerRepository ?? 
+                throw new ArgumentNullException(nameof(spajzManagerRepository));
+            _mapper = mapper ??
+                throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<HouseholdDto>> GetHouseholds()
+        public async Task<ActionResult<IEnumerable<HouseholdWithoutItemsDto>>> GetHouseholds()
         {
-            return Ok(_householdDataStore.Households);
+            var householdEntities = await _spajzManagerRepository.GetHouseholdsAsync();
+            return Ok(_mapper.Map<IEnumerable<HouseholdWithoutItemsDto>>(householdEntities));
         }
 
         [HttpGet("{id}")]
-        public ActionResult<HouseholdDto> GetHousehold(int id)
+        public async Task<IActionResult> GetHousehold(
+            int id, bool includeItems = false)
         {
-            var itemToReturn = _householdDataStore
-                .Households.FirstOrDefault(h => h.Id == id);
-
-            if (itemToReturn == null)
+            var household = await _spajzManagerRepository.GetHouseholdAsync(id, includeItems);
+            if (household == null)
             {
                 return NotFound();
             }
 
-            return Ok(itemToReturn);        
+            if (includeItems)
+            {
+                return Ok(_mapper.Map<HouseholdDto>(household));
+            }
+
+            return Ok(_mapper.Map<HouseholdWithoutItemsDto>(household));
         }
     }
 }

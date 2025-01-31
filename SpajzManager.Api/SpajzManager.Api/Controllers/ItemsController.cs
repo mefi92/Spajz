@@ -1,6 +1,8 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using SpajzManager.Api.Entities;
 using SpajzManager.Api.Models;
 using SpajzManager.Api.Services;
 
@@ -12,148 +14,133 @@ namespace SpajzManager.Api.Controllers
     {
         private readonly ILogger<ItemsController> _logger;
         private readonly IMailService _mailService;
-        private readonly HouseholdDataStore _householdDataStore;
+        private readonly ISpajzManagerRepository _spajzManagerRepository;
+        private readonly IMapper _mapper;
 
         public ItemsController(ILogger<ItemsController> logger,
-            IMailService mailService,
-            HouseholdDataStore householdDataStore)
+            IMailService mailService, 
+            ISpajzManagerRepository spajzManagerRepository,
+            IMapper mapper)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
-            _householdDataStore = householdDataStore ?? throw new ArgumentException(nameof(householdDataStore));
+            _logger = logger ??
+                throw new ArgumentNullException(nameof(logger));
+            _mailService = mailService ??
+                throw new ArgumentNullException(nameof(mailService));
+            _spajzManagerRepository = spajzManagerRepository ??
+                throw new ArgumentNullException(nameof(spajzManagerRepository));
+            _mapper = mapper ?? 
+                throw new ArgumentNullException(nameof(mapper));
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<ItemDto>> GetItems(int householdId)
+        public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems(int householdId)
         {
-            try
-            {                
-                var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-
-                if (household == null)
-                {
-                    return NotFound();
-                }
-
-                return Ok(household.Items);
-            }
-            catch (Exception ex)
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
-                _logger.LogCritical(
-                    $"Exception while getting items for household with id {householdId}.",
-                    ex);
-                return StatusCode(500,
-                    "A problem happened while handling your request.");
-            }
-            
-        }
-
-        [HttpGet("{itemid}", Name = "GetItem")]
-        public ActionResult<ItemDto> GetItem(
-            int householdId, int itemId) 
-        {
-            var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-            if (household == null)
-            {
-                _logger.LogInformation($"Household with id {householdId} wasn't found when accessing items.");
+                _logger.LogInformation(
+                    $"Household with id {householdId} wasn't found when accessing items.");
                 return NotFound();
             }
 
-            var item = household.Items.FirstOrDefault(i => i.Id == itemId);
+            var items = await _spajzManagerRepository
+                .GetItemsForHouseholdAsync(householdId);
+
+            return Ok(_mapper.Map<IEnumerable<ItemDto>>(items));            
+        }
+
+        [HttpGet("{itemid}", Name = "GetItem")]
+        public async Task<ActionResult<ItemDto>> GetItem(
+            int householdId, int itemId) 
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                _logger.LogInformation(
+                    $"Household with id {householdId} wasn't found when accessing items.");
+                return NotFound();
+            }
+
+            var item = await _spajzManagerRepository
+                .GetItemForHouseholdAsync(householdId, itemId);
+
             if (item == null)
             {
                 return NotFound();
             }
 
-            return Ok(item);
+            return Ok(_mapper.Map<ItemDto>(item));
         }
 
         [HttpPost]
-        public ActionResult<ItemDto> CreateItem(
+        public async Task<ActionResult<ItemDto>> CreateItem(
             int householdId, 
             ItemForCreationDto item)
-        {
-            var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-            if (household == null)
+        {            
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
                 return NotFound();
             }
 
-            // temporary - to be improved
-            var maxItemId = _householdDataStore.Households
-                .SelectMany(h => h.Items).Max(i => i.Id);
+            var finalItem = _mapper.Map<Entities.Item>(item);
 
-            var finalItem = new ItemDto()
-            {
-                Id = ++maxItemId,
-                Name = item.Name,
-                Description = item.Description,
-            };
+            await _spajzManagerRepository.AddItemForHouseholdAsync(
+                householdId, finalItem);
 
-            household.Items.Add(finalItem);
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            var createItemToReturn = 
+                _mapper.Map<Models.ItemDto>(finalItem);
 
             return CreatedAtRoute("GetItem",
                 new
                 {
-                    householdId,
-                    itemId = finalItem.Id
+                    householdId = householdId,
+                    itemId = createItemToReturn.Id
                 },
-                finalItem);
+                createItemToReturn);
         }
 
         [HttpPut("{itemid}")]
-        public ActionResult<ItemDto> UpdateItem(
+        public async Task<ActionResult<ItemDto>> UpdateItem(
             int householdId, int itemId,
             ItemForUpdateDto item)
-        {
-            var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-            if (household == null) 
-            {
-                return NotFound(); 
-            }
-
-            var itemFromStore = household.Items
-                .FirstOrDefault(i => i.Id == itemId);
-            if (itemFromStore == null)
+        {            
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
                 return NotFound();
             }
 
-            itemFromStore.Name = item.Name;
-            itemFromStore.Description = item.Description;
+            var itemEntity = await _spajzManagerRepository
+                .GetItemForHouseholdAsync(householdId, itemId);
+            if (itemEntity == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(item, itemEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpPatch("{itemid}")]
-        public ActionResult PartiallyUpdateItem(
+        public async Task<ActionResult> PartiallyUpdateItem(
             int householdId, int itemId,
             JsonPatchDocument<ItemForUpdateDto> patchDocument)
         {
-            var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-            if (household == null)
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
                 return NotFound();
             }
 
-            var itemFromStore = household.Items
-                .FirstOrDefault(i => i.Id == itemId);
-            if (itemFromStore == null)
+            var itemEntity = await _spajzManagerRepository
+                .GetItemForHouseholdAsync(householdId, itemId);
+            if (itemEntity == null)
             {
                 return NotFound();
             }
 
-            var itemToPatch =
-                new ItemForUpdateDto()
-                {
-                    Name = itemFromStore.Name,
-                    Description = itemFromStore.Description
-                };
+            var itemToPatch = _mapper.Map<ItemForUpdateDto>(itemEntity);
 
             patchDocument.ApplyTo(itemToPatch, ModelState);
 
@@ -167,34 +154,35 @@ namespace SpajzManager.Api.Controllers
                 return BadRequest();
             }
 
-            itemFromStore.Name = itemToPatch.Name;
-            itemFromStore.Description = itemToPatch.Description;
+            _mapper.Map(itemToPatch, itemEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
 
             return NoContent();
         }
 
         [HttpDelete("{itemid}")]
-        public ActionResult DeleteItem(
+        public async Task<ActionResult> DeleteItem(
             int householdId, int itemId)
         {
-            var household = _householdDataStore.Households
-                .FirstOrDefault(h => h.Id == householdId);
-            if (household == null)
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
                 return NotFound();
             }
 
-            var itemFromStore = household.Items
-                .FirstOrDefault(i => i.Id == itemId);
-            if (itemFromStore == null)
+            var itemEntity = await _spajzManagerRepository
+                .GetItemForHouseholdAsync(householdId, itemId);
+            if (itemEntity == null)
             {
                 return NotFound();
             }
 
-            household.Items.Remove(itemFromStore);
+            _spajzManagerRepository.DeleteItem(itemEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
 
             _mailService.Send("Item deleted.",
-                $"Item {itemFromStore.Name} with id {itemFromStore.Id} was deleted.");
+                $"Item {itemEntity.Name} with id {itemEntity.Id} was deleted.");
 
             return NoContent();
         }
