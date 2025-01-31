@@ -6,7 +6,6 @@ namespace SpajzManager.Api
     public class HouseholdDataStore
     {
         public List<HouseholdDto> Households { get; set; }
-        public static HouseholdDataStore Current { get; } = new HouseholdDataStore();
 
         public HouseholdDataStore()
         {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SpajzManager.Api.Models;
+using SpajzManager.Api.Services;
 
 namespace SpajzManager.Api.Controllers
 {
@@ -9,28 +10,54 @@ namespace SpajzManager.Api.Controllers
     [ApiController]
     public class ItemsController : ControllerBase
     {
+        private readonly ILogger<ItemsController> _logger;
+        private readonly IMailService _mailService;
+        private readonly HouseholdDataStore _householdDataStore;
+
+        public ItemsController(ILogger<ItemsController> logger,
+            IMailService mailService,
+            HouseholdDataStore householdDataStore)
+        {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _mailService = mailService ?? throw new ArgumentNullException(nameof(mailService));
+            _householdDataStore = householdDataStore ?? throw new ArgumentException(nameof(householdDataStore));
+        }
+
         [HttpGet]
         public ActionResult<IEnumerable<ItemDto>> GetItems(int householdId)
         {
-            var household = HouseholdDataStore.Current.Households
+            try
+            {                
+                var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
 
-            if (household == null)
-            {
-                return NotFound();
-            }
+                if (household == null)
+                {
+                    return NotFound();
+                }
 
-            return Ok(household.Items);
+                return Ok(household.Items);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogCritical(
+                    $"Exception while getting items for household with id {householdId}.",
+                    ex);
+                return StatusCode(500,
+                    "A problem happened while handling your request.");
+            }
+            
         }
 
         [HttpGet("{itemid}", Name = "GetItem")]
         public ActionResult<ItemDto> GetItem(
             int householdId, int itemId) 
         {
-            var household = HouseholdDataStore.Current.Households
+            var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
             if (household == null)
             {
+                _logger.LogInformation($"Household with id {householdId} wasn't found when accessing items.");
                 return NotFound();
             }
 
@@ -48,7 +75,7 @@ namespace SpajzManager.Api.Controllers
             int householdId, 
             ItemForCreationDto item)
         {
-            var household = HouseholdDataStore.Current.Households
+            var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
             if (household == null)
             {
@@ -56,7 +83,7 @@ namespace SpajzManager.Api.Controllers
             }
 
             // temporary - to be improved
-            var maxItemId = HouseholdDataStore.Current.Households
+            var maxItemId = _householdDataStore.Households
                 .SelectMany(h => h.Items).Max(i => i.Id);
 
             var finalItem = new ItemDto()
@@ -82,7 +109,7 @@ namespace SpajzManager.Api.Controllers
             int householdId, int itemId,
             ItemForUpdateDto item)
         {
-            var household = HouseholdDataStore.Current.Households
+            var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
             if (household == null) 
             {
@@ -107,7 +134,7 @@ namespace SpajzManager.Api.Controllers
             int householdId, int itemId,
             JsonPatchDocument<ItemForUpdateDto> patchDocument)
         {
-            var household = HouseholdDataStore.Current.Households
+            var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
             if (household == null)
             {
@@ -150,7 +177,7 @@ namespace SpajzManager.Api.Controllers
         public ActionResult DeleteItem(
             int householdId, int itemId)
         {
-            var household = HouseholdDataStore.Current.Households
+            var household = _householdDataStore.Households
                 .FirstOrDefault(h => h.Id == householdId);
             if (household == null)
             {
@@ -165,6 +192,9 @@ namespace SpajzManager.Api.Controllers
             }
 
             household.Items.Remove(itemFromStore);
+
+            _mailService.Send("Item deleted.",
+                $"Item {itemFromStore.Name} with id {itemFromStore.Id} was deleted.");
 
             return NoContent();
         }
