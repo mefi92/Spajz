@@ -55,7 +55,7 @@ namespace SpajzManager.Api.Services
                 .OrderBy(i => i.Name)
                 .ToListAsync();
         }
-        public async Task<IEnumerable<Item>> GetItemsForHouseholdAsync(
+        public async Task<(IEnumerable<Item>, PaginationMetadata)> GetItemsForHouseholdAsync(
             int householdId, string? name, string? searchQuery,
             int pageNumber, int pageSize)
         {
@@ -74,10 +74,17 @@ namespace SpajzManager.Api.Services
                     || (a.Description != null && a.Description.Contains(searchQuery)));
             }
 
-            return await collection.OrderBy(i => i.Name)
+            var totalItemCount = await collection.CountAsync();
+
+            var paginationMetadata = new PaginationMetadata(
+                totalItemCount, pageSize, pageNumber);
+
+            var collectionToReturn = await collection.OrderBy(i => i.Name)
                 .Skip(pageSize * (pageNumber - 1))
                 .Take(pageSize)
                 .ToListAsync();
+
+            return (collectionToReturn, paginationMetadata);
         }
 
         public async Task AddItemForHouseholdAsync(int householdId, 

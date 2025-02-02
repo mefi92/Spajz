@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using SpajzManager.Api.Entities;
 using SpajzManager.Api.Models;
 using SpajzManager.Api.Services;
+using System.Text.Json;
 
 namespace SpajzManager.Api.Controllers
 {
@@ -49,9 +50,12 @@ namespace SpajzManager.Api.Controllers
                 pageSize = maxItemsPageSize;
             }
 
-            var items = await _spajzManagerRepository
+            var (items, paginationMetadata) = await _spajzManagerRepository
                 .GetItemsForHouseholdAsync(householdId, name,
                     searchQuery, pageNumber, pageSize);
+
+            Response.Headers.Append("X-Pagination",
+                JsonSerializer.Serialize(paginationMetadata));
 
             return Ok(_mapper.Map<IEnumerable<ItemDto>>(items));            
         }
