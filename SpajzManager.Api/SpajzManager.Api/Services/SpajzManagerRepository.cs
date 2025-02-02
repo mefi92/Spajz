@@ -52,7 +52,22 @@ namespace SpajzManager.Api.Services
         {
             return await _context.Items
                 .Where(i => i.HouseholdId == householdId)
-                .OrderBy(i => i.Name).ToListAsync();
+                .OrderBy(i => i.Name)
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Item>> GetItemsForHouseholdAsync(
+            int householdId, string? name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                return await GetItemsForHouseholdAsync(householdId);
+            }
+
+            name = name.Trim();
+            return await _context.Items
+                .Where(i => i.Name == name)
+                .OrderByDescending(i => i.Name)
+                .ToListAsync();
         }
 
         public async Task AddItemForHouseholdAsync(int householdId, 
