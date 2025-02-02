@@ -34,7 +34,7 @@ namespace SpajzManager.Api.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems(int householdId,
-            string? name)
+            string? name, string? searchQuery)
         {
             if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
@@ -44,7 +44,7 @@ namespace SpajzManager.Api.Controllers
             }
 
             var items = await _spajzManagerRepository
-                .GetItemsForHouseholdAsync(householdId, name);
+                .GetItemsForHouseholdAsync(householdId, name, searchQuery);
 
             return Ok(_mapper.Map<IEnumerable<ItemDto>>(items));            
         }

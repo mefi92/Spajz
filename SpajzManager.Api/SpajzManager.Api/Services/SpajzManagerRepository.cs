@@ -56,18 +56,30 @@ namespace SpajzManager.Api.Services
                 .ToListAsync();
         }
         public async Task<IEnumerable<Item>> GetItemsForHouseholdAsync(
-            int householdId, string? name)
+            int householdId, string? name, string? searchQuery)
         {
-            if (string.IsNullOrEmpty(name))
+            if (string.IsNullOrEmpty(name)
+                && string.IsNullOrEmpty(searchQuery))
             {
                 return await GetItemsForHouseholdAsync(householdId);
             }
 
-            name = name.Trim();
-            return await _context.Items
-                .Where(i => i.Name == name)
-                .OrderByDescending(i => i.Name)
-                .ToListAsync();
+            var collection = _context.Items as IQueryable<Item>;
+
+            if (!string.IsNullOrEmpty(name))
+            {
+                name = name.Trim();
+                collection = collection.Where(i => i.Name == name);
+            }
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.Trim();
+                collection = collection.Where(a => a.Name.Contains(searchQuery)
+                    || (a.Description != null && a.Description.Contains(searchQuery)));
+            }
+
+            return await collection.OrderBy(i => i.Name).ToListAsync();
         }
 
         public async Task AddItemForHouseholdAsync(int householdId, 
