@@ -16,6 +16,7 @@ namespace SpajzManager.Api.Controllers
         private readonly IMailService _mailService;
         private readonly ISpajzManagerRepository _spajzManagerRepository;
         private readonly IMapper _mapper;
+        private const int maxItemsPageSize = 20;
 
         public ItemsController(ILogger<ItemsController> logger,
             IMailService mailService, 
@@ -34,7 +35,7 @@ namespace SpajzManager.Api.Controllers
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ItemDto>>> GetItems(int householdId,
-            string? name, string? searchQuery)
+            string? name, string? searchQuery, int pageNumber = 1, int pageSize = 10)
         {
             if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
             {
@@ -43,8 +44,14 @@ namespace SpajzManager.Api.Controllers
                 return NotFound();
             }
 
+            if (pageSize > maxItemsPageSize)
+            {
+                pageSize = maxItemsPageSize;
+            }
+
             var items = await _spajzManagerRepository
-                .GetItemsForHouseholdAsync(householdId, name, searchQuery);
+                .GetItemsForHouseholdAsync(householdId, name,
+                    searchQuery, pageNumber, pageSize);
 
             return Ok(_mapper.Map<IEnumerable<ItemDto>>(items));            
         }

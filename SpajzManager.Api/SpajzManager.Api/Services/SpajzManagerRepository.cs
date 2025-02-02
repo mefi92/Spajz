@@ -56,14 +56,9 @@ namespace SpajzManager.Api.Services
                 .ToListAsync();
         }
         public async Task<IEnumerable<Item>> GetItemsForHouseholdAsync(
-            int householdId, string? name, string? searchQuery)
+            int householdId, string? name, string? searchQuery,
+            int pageNumber, int pageSize)
         {
-            if (string.IsNullOrEmpty(name)
-                && string.IsNullOrEmpty(searchQuery))
-            {
-                return await GetItemsForHouseholdAsync(householdId);
-            }
-
             var collection = _context.Items as IQueryable<Item>;
 
             if (!string.IsNullOrEmpty(name))
@@ -79,7 +74,10 @@ namespace SpajzManager.Api.Services
                     || (a.Description != null && a.Description.Contains(searchQuery)));
             }
 
-            return await collection.OrderBy(i => i.Name).ToListAsync();
+            return await collection.OrderBy(i => i.Name)
+                .Skip(pageSize * (pageNumber - 1))
+                .Take(pageSize)
+                .ToListAsync();
         }
 
         public async Task AddItemForHouseholdAsync(int householdId, 
