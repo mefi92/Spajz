@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SpajzManager.Api.Enums;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpajzManager.Api.Entities
@@ -20,9 +21,13 @@ namespace SpajzManager.Api.Entities
         public Household? Household { get; set; }
         public int HouseholdId { get; set; }
 
+        [Required]
+        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
+
         public Item(string name)
         {
             Name = name;
+            Unit = QuantityUnit.Piece;
         }
     } 
 }

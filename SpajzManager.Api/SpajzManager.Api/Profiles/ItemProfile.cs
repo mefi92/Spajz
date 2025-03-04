@@ -7,10 +7,9 @@ namespace SpajzManager.Api.Profiles
     {
         public ItemProfile()
         {
-            CreateMap<Entities.Item, Models.ItemDto>();
-            CreateMap<Entities.Item, Models.ItemForUpdateDto>();
+            CreateMap<Entities.Item, Models.ItemDto>().ReverseMap();
+            CreateMap<Entities.Item, Models.ItemForUpdateDto>().ReverseMap();
             CreateMap<Models.ItemForCreationDto, Entities.Item>();
-            CreateMap<Models.ItemForUpdateDto, Entities.Item>();
         }
     }
 }

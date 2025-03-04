@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SpajzManager.Api.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace SpajzManager.Api.Models
 {
@@ -10,5 +11,8 @@ namespace SpajzManager.Api.Models
 
         [MaxLength(200)]
         public string? Description { get; set; }
+
+        [Required(ErrorMessage = "You should provide a unit value.")]
+        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
     }
 }
