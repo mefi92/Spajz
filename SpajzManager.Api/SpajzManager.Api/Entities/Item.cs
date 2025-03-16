@@ -29,13 +29,17 @@ namespace SpajzManager.Api.Entities
         [Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public decimal Quantity { get; set; }
 
+        //[Required]
+        //public DateTime CreatedAt { get; private set; }
+
         public Item(string name, 
             decimal quantity = 1,
             QuantityUnit unit = QuantityUnit.Piece)
         {
             Name = name;
             Quantity = quantity;
-            Unit = unit;            
+            Unit = unit;
+            //CreatedAt = DateTime.Now;
         }
     } 
 }

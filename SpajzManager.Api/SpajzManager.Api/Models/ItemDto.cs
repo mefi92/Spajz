@@ -9,5 +9,6 @@ namespace SpajzManager.Api.Models
         public string? Description { get; set; }
         public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
         public decimal Quantity { get; set; } = 1;
+        //public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }
