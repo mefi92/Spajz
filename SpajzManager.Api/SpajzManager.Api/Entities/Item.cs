@@ -22,12 +22,20 @@ namespace SpajzManager.Api.Entities
         public int HouseholdId { get; set; }
 
         [Required]
-        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
+        public QuantityUnit Unit { get; set; }
 
-        public Item(string name)
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
+        public decimal Quantity { get; set; }
+
+        public Item(string name, 
+            decimal quantity = 1,
+            QuantityUnit unit = QuantityUnit.Piece)
         {
             Name = name;
-            Unit = QuantityUnit.Piece;
+            Quantity = quantity;
+            Unit = unit;            
         }
     } 
 }

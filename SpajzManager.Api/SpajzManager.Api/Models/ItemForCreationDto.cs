@@ -14,5 +14,9 @@ namespace SpajzManager.Api.Models
 
         [Required(ErrorMessage = "You should provide a unit value.")]
         public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
+
+        [Required]
+        [Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
+        public decimal Quantity { get; set; } = 1;
     }
 }

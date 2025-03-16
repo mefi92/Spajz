@@ -13,6 +13,9 @@ namespace SpajzManager.Api.Models
         public string? Description { get; set; }
 
         [Required(ErrorMessage = "You should provide a unit value.")]
-        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece; // Alapértelmezett érték
+        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
+
+        [Required(ErrorMessage = "Quantity must be greater than zero.")]
+        public decimal Quantity { get; set; } = 1;
     }
 }
