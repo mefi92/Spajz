@@ -7,7 +7,7 @@ namespace SpajzManager.Api.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public QuantityUnit Unit { get; set; } = QuantityUnit.Piece;
+        public string Unit { get; set; } = string.Empty;
         public decimal Quantity { get; set; } = 1;
         public DateTime CreatedAt { get; set; }
     }

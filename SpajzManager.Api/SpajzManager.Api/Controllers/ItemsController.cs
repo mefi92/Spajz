@@ -57,13 +57,14 @@ namespace SpajzManager.Api.Controllers
             Response.Headers.Append("X-Pagination",
                 JsonSerializer.Serialize(paginationMetadata));
 
-            var itemsDto = _mapper.Map<IEnumerable<ItemDto>>(items);
-            foreach (var item in itemsDto)
+            var itemsToReturn = _mapper.Map<IEnumerable<ItemDto>>(items);
+            foreach (var item in itemsToReturn)
             {
                 item.CreatedAt = item.CreatedAt.ToLocalTime();
+                item.Unit = item.Unit.ToString();
             }
 
-            return Ok(itemsDto);            
+            return Ok(itemsToReturn);            
         }
 
         [HttpGet("{itemid}", Name = "GetItem")]
@@ -85,10 +86,11 @@ namespace SpajzManager.Api.Controllers
                 return NotFound();
             }
 
-            var itemDto = _mapper.Map<ItemDto>(item);
-            itemDto.CreatedAt = item.CreatedAt.ToLocalTime();
+            var itemToReturn = _mapper.Map<ItemDto>(item);
+            itemToReturn.CreatedAt = item.CreatedAt.ToLocalTime();
+            itemToReturn.Unit = item.Unit.ToString();
 
-            return Ok(itemDto);
+            return Ok(itemToReturn);
         }
 
         [HttpPost]
