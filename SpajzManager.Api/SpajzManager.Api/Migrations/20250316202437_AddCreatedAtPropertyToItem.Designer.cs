@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpajzManager.Api.DbContexts;
 
@@ -10,9 +11,11 @@ using SpajzManager.Api.DbContexts;
 namespace SpajzManager.Api.Migrations
 {
     [DbContext(typeof(SpajzManagerContext))]
-    partial class SpajzManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20250316202437_AddCreatedAtPropertyToItem")]
+    partial class AddCreatedAtPropertyToItem
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
@@ -64,9 +67,7 @@ namespace SpajzManager.Api.Migrations
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("TEXT")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasMaxLength(200)
@@ -91,6 +92,38 @@ namespace SpajzManager.Api.Migrations
                     b.HasIndex("HouseholdId");
 
                     b.ToTable("Items");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "gyümölcs",
+                            HouseholdId = 1,
+                            Name = "Alma",
+                            Quantity = 1m,
+                            Unit = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "egyenesen a tehénből",
+                            HouseholdId = 1,
+                            Name = "Tej",
+                            Quantity = 1m,
+                            Unit = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Description = "utlimate zöldség",
+                            HouseholdId = 1,
+                            Name = "Brokkoli",
+                            Quantity = 1m,
+                            Unit = 0
+                        });
                 });
 
             modelBuilder.Entity("SpajzManager.Api.Entities.Item", b =>

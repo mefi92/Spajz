@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpajzManager.Api.DbContexts;
 
@@ -10,9 +11,11 @@ using SpajzManager.Api.DbContexts;
 namespace SpajzManager.Api.Migrations
 {
     [DbContext(typeof(SpajzManagerContext))]
-    partial class SpajzManagerContextModelSnapshot : ModelSnapshot
+    [Migration("20250318175141_UpdateCreatedAt")]
+    partial class UpdateCreatedAt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.0");

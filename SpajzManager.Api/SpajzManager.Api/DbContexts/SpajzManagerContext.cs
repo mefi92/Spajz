@@ -34,25 +34,8 @@ namespace SpajzManager.Api.DbContexts
                 });
 
             modelBuilder.Entity<Item>()
-                .HasData(
-                new Item("Alma")
-                {
-                    Id = 1,
-                    HouseholdId = 1,
-                    Description = "gyümölcs"
-                },
-                new Item("Tej")
-                {
-                    Id = 2,
-                    HouseholdId = 1,
-                    Description = "egyenesen a tehénből"
-                },
-                new Item("Brokkoli")
-                {
-                    Id = 3,
-                    HouseholdId = 1,
-                    Description = "utlimate zöldség"
-                });
+                        .Property(i => i.CreatedAt)
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
             base.OnModelCreating(modelBuilder);
         }
