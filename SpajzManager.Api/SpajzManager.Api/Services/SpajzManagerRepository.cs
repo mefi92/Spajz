@@ -125,5 +125,13 @@ namespace SpajzManager.Api.Services
             item.StorageId = storageId;
             await _context.Items.AddAsync(item);
         }
+
+        public async Task<IEnumerable<Storage>> GetStoragesForHouseholdAsync(int householdId)
+        {
+            return await _context.Storages
+                .Where(s => s.HouseholdId == householdId)
+                .OrderBy(s => s.Name)
+                .ToListAsync();
+        }
     }
 }
