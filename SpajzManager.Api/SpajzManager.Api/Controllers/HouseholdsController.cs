@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using SpajzManager.Api.Entities;
 using SpajzManager.Api.Models;
 using SpajzManager.Api.Services;
 
@@ -49,18 +50,66 @@ namespace SpajzManager.Api.Controllers
             return Ok(_mapper.Map<HouseholdWithoutItemsDto>(household));
         }
 
-        [HttpGet("{id}/storages")]
+        [HttpGet("{householdid}/storages", Name = "GetStorages")]
         public async Task<ActionResult<IEnumerable<StorageDto>>> GetStorages(
-            int id)
+            int householdId)
         {
             var storages = await _spajzManagerRepository
-                .GetStoragesForHouseholdAsync(id);
+                .GetStoragesForHouseholdAsync(householdId);
 
             if (storages == null || !storages.Any())
             {
                 return NotFound();
             }
             return Ok(_mapper.Map<IEnumerable<StorageDto>>(storages));
+        }
+
+        [HttpGet("{householdid}/storages/{storageid}")]
+        public async Task<ActionResult<StorageDto>> GetStorage(
+            int householdId,
+            int storageId)
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                return NotFound();
+            }
+
+            var storage = await _spajzManagerRepository
+                .GetStorageForHouseholdAsync(householdId, storageId);
+
+            if (storage == null)
+            {
+                return NotFound();
+            }
+
+            var storageToReturn = _mapper.Map<StorageDto>(storage);
+
+            return Ok(storageToReturn);
+        }
+
+        [HttpPost("{id}/storages")]
+        public async Task<ActionResult<StorageDto>> CreateStorage(
+            int id,
+            StorageForCreationDto storageDto)
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(id))
+            {
+                return NotFound();
+            }
+
+            var newStorage = _mapper.Map<Storage>(storageDto);
+            newStorage.HouseholdId = id;
+
+            await _spajzManagerRepository
+                .AddStorageForHouseholdAsync(id, newStorage);
+            await _spajzManagerRepository
+                .SaveChangesAsync();
+
+            var createdStorage = _mapper.Map<StorageDto>(newStorage);
+
+            return CreatedAtRoute("GetStorages",
+                new { storageid = id },
+                createdStorage);        
         }
     }
 }

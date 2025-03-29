@@ -112,7 +112,7 @@ namespace SpajzManager.Api.Services
                 .AnyAsync(h => h.Id == householdId && h.Storages.Any(s => s.Id == storageId));
         }
 
-        public async Task AddItemToStorageAsync(int storageId, Item item)
+        public async Task AddItemForStorageAsync(int storageId, Item item)
         {
             var storage = await _context.Storages
                 .FirstOrDefaultAsync(s => s.Id == storageId);
@@ -132,6 +132,23 @@ namespace SpajzManager.Api.Services
                 .Where(s => s.HouseholdId == householdId)
                 .OrderBy(s => s.Name)
                 .ToListAsync();
+        }
+
+        public async Task AddStorageForHouseholdAsync(int householdId, Storage storage)
+        {
+            var household = await GetHouseholdAsync(householdId, false);
+
+            if (household != null)
+            {
+                household.Storages.Add(storage);
+            }
+        }
+
+        public async Task<Storage?> GetStorageForHouseholdAsync(int householdId, int storageId)
+        {
+            return await _context.Storages
+                .Where(s => s.HouseholdId == householdId && s.Id == storageId)
+                .FirstOrDefaultAsync();
         }
     }
 }

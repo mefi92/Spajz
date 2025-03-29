@@ -93,35 +93,6 @@ namespace SpajzManager.Api.Controllers
             return Ok(itemToReturn);
         }
 
-        //[HttpPost]
-        //public async Task<ActionResult<ItemDto>> CreateItem(
-        //    int householdId, 
-        //    ItemForCreationDto item)
-        //{            
-        //    if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
-        //    {
-        //        return NotFound();
-        //    }
-
-        //    var finalItem = _mapper.Map<Entities.Item>(item);
-
-        //    await _spajzManagerRepository.AddItemForHouseholdAsync(
-        //        householdId, finalItem);
-
-        //    await _spajzManagerRepository.SaveChangesAsync();
-
-        //    var createItemToReturn = 
-        //        _mapper.Map<Models.ItemDto>(finalItem);
-
-        //    return CreatedAtRoute("GetItem",
-        //        new
-        //        {
-        //            householdId = householdId,
-        //            itemId = createItemToReturn.Id
-        //        },
-        //        createItemToReturn);
-        //}
-
         [HttpPut("{itemid}")]
         public async Task<ActionResult<ItemDto>> UpdateItem(
             int householdId, int itemId,

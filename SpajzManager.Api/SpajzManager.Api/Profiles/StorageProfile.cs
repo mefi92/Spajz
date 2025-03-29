@@ -7,6 +7,7 @@ namespace SpajzManager.Api.Profiles
         public StorageProfile()
         {
             CreateMap<Entities.Storage, Models.StorageDto>();
+            CreateMap<Models.StorageForCreationDto, Entities.Storage>();
         }
     }
 }

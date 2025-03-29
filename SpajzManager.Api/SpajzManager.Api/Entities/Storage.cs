@@ -19,6 +19,9 @@ namespace SpajzManager.Api.Entities
         public Household? Household { get; set; }
         public int HouseholdId { get; set; }
 
+        [MaxLength(200)]
+        public string? Description { get; set; }
+
         public Storage(string name)
         {
             Name = name;

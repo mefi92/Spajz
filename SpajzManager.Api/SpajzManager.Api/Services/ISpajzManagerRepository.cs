@@ -15,7 +15,9 @@ namespace SpajzManager.Api.Services
         void DeleteItem(Item item);
         Task<bool> SaveChangesAsync();
         Task<bool> StorageExistsAsync(int householdId, int storageId);
-        Task AddItemToStorageAsync(int storageId, Item item);
+        Task AddItemForStorageAsync(int storageId, Item item);
         Task<IEnumerable<Storage>> GetStoragesForHouseholdAsync(int householdId);
+        Task<Storage?> GetStorageForHouseholdAsync(int householdId, int storageId);
+        Task AddStorageForHouseholdAsync(int householdId, Storage storage);
     }
 }
