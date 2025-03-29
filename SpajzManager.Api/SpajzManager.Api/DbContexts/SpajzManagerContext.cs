@@ -35,6 +35,24 @@ namespace SpajzManager.Api.DbContexts
                     Description = "Nyaraló"
                 });
 
+            modelBuilder.Entity<Storage>()
+                .HasData(
+                new Storage("Hűtőszekrény")
+                {
+                    Id = 1,
+                    HouseholdId = 1
+                },
+                new Storage("Kamra")
+                {
+                    Id = 2,
+                    HouseholdId = 1
+                },
+                new Storage("Fagyasztó")
+                {
+                    Id = 3,
+                    HouseholdId = 2
+                });
+
             modelBuilder.Entity<Item>()
                         .Property(i => i.CreatedAt)
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");

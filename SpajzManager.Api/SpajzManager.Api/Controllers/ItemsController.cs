@@ -210,21 +210,44 @@ namespace SpajzManager.Api.Controllers
             return NoContent();
         }
 
-        [HttpPost("storages/{storageId}/items")]
-        public async Task<ActionResult<ItemDto>> CreateItem(int householdId, int storageId, ItemForCreationDto itemDto)
+        [HttpPost]
+        public async Task<ActionResult<ItemDto>> CreateItem(
+            int householdId, 
+            ItemForCreationDto itemDto)
         {
-            if (!await _spajzManagerRepository.StorageExistsAsync(householdId, storageId))
+
+            var household = await _spajzManagerRepository
+                .GetHouseholdAsync(householdId, false);
+
+            if ( household == null)
             {
-                return BadRequest("Storage does not exist in the given household.");
+                return NotFound();
             }
 
-            var itemEntity = _mapper.Map<Item>(itemDto);
-            itemEntity.StorageId = storageId;
+            var storageExists = household?.Storages
+                    .Any(s => s.Id == itemDto.StorageId) ?? false;
 
-            await _spajzManagerRepository.AddItemToStorageAsync(storageId, itemEntity);
-            await _spajzManagerRepository.SaveChangesAsync();
+            if (!storageExists)
+            {
+                return BadRequest(
+                    "The specified storage does not belong to this household.");
+            }
 
-            return CreatedAtAction(nameof(GetItem), new { itemId = itemEntity.Id }, _mapper.Map<ItemDto>(itemEntity));
+            var finalItem = _mapper.Map<Item>(itemDto);
+            finalItem.HouseholdId = householdId;
+
+            await _spajzManagerRepository
+                    .AddItemForHouseholdAsync(householdId, finalItem);
+            await _spajzManagerRepository
+                    .SaveChangesAsync();
+
+            var createItemToReturn =
+                _mapper.Map<Models.ItemDto>(finalItem);
+
+
+            return CreatedAtRoute("GetItem",
+                new { householdId, itemid = createItemToReturn.Id },
+                createItemToReturn);
         }
     }
 }

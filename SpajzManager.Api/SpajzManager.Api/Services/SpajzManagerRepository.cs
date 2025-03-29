@@ -23,9 +23,8 @@ namespace SpajzManager.Api.Services
                     .Where(h => h.Id == householdId).FirstOrDefaultAsync();
             }
 
-            return await _context.Households
+            return await _context.Households.Include(s => s.Storages)
                 .Where(h => h.Id == householdId).FirstOrDefaultAsync();
-
         }
 
         public async Task<IEnumerable<Household>> GetHouseholdsAsync()
