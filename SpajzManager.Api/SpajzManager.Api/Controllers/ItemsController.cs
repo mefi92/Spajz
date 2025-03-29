@@ -93,34 +93,34 @@ namespace SpajzManager.Api.Controllers
             return Ok(itemToReturn);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ItemDto>> CreateItem(
-            int householdId, 
-            ItemForCreationDto item)
-        {            
-            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
-            {
-                return NotFound();
-            }
+        //[HttpPost]
+        //public async Task<ActionResult<ItemDto>> CreateItem(
+        //    int householdId, 
+        //    ItemForCreationDto item)
+        //{            
+        //    if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+        //    {
+        //        return NotFound();
+        //    }
 
-            var finalItem = _mapper.Map<Entities.Item>(item);
+        //    var finalItem = _mapper.Map<Entities.Item>(item);
 
-            await _spajzManagerRepository.AddItemForHouseholdAsync(
-                householdId, finalItem);
+        //    await _spajzManagerRepository.AddItemForHouseholdAsync(
+        //        householdId, finalItem);
 
-            await _spajzManagerRepository.SaveChangesAsync();
+        //    await _spajzManagerRepository.SaveChangesAsync();
 
-            var createItemToReturn = 
-                _mapper.Map<Models.ItemDto>(finalItem);
+        //    var createItemToReturn = 
+        //        _mapper.Map<Models.ItemDto>(finalItem);
 
-            return CreatedAtRoute("GetItem",
-                new
-                {
-                    householdId = householdId,
-                    itemId = createItemToReturn.Id
-                },
-                createItemToReturn);
-        }
+        //    return CreatedAtRoute("GetItem",
+        //        new
+        //        {
+        //            householdId = householdId,
+        //            itemId = createItemToReturn.Id
+        //        },
+        //        createItemToReturn);
+        //}
 
         [HttpPut("{itemid}")]
         public async Task<ActionResult<ItemDto>> UpdateItem(
@@ -208,6 +208,23 @@ namespace SpajzManager.Api.Controllers
                 $"Item {itemEntity.Name} with id {itemEntity.Id} was deleted.");
 
             return NoContent();
+        }
+
+        [HttpPost("storages/{storageId}/items")]
+        public async Task<ActionResult<ItemDto>> CreateItem(int householdId, int storageId, ItemForCreationDto itemDto)
+        {
+            if (!await _spajzManagerRepository.StorageExistsAsync(householdId, storageId))
+            {
+                return BadRequest("Storage does not exist in the given household.");
+            }
+
+            var itemEntity = _mapper.Map<Item>(itemDto);
+            itemEntity.StorageId = storageId;
+
+            await _spajzManagerRepository.AddItemToStorageAsync(storageId, itemEntity);
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetItem), new { itemId = itemEntity.Id }, _mapper.Map<ItemDto>(itemEntity));
         }
     }
 }

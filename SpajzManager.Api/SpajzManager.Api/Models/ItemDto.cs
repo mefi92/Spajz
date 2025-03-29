@@ -10,5 +10,6 @@ namespace SpajzManager.Api.Models
         public string Unit { get; set; } = string.Empty;
         public decimal Quantity { get; set; } = 1;
         public DateTime CreatedAt { get; set; }
+        public int StorageId { get; set; }
     }
 }

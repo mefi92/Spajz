@@ -21,6 +21,10 @@ namespace SpajzManager.Api.Entities
         public Household? Household { get; set; }
         public int HouseholdId { get; set; }
 
+        [ForeignKey("StorageId")]
+        public Storage? Storage { get; set; }
+        public int? StorageId { get; set; }
+
         [Required]
         public QuantityUnit Unit { get; set; }
 
@@ -31,6 +35,7 @@ namespace SpajzManager.Api.Entities
 
         [Required]
         public DateTime CreatedAt { get; set; }
+        
 
         public Item(string name, 
             decimal quantity = 1,

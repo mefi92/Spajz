@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using SpajzManager.Api.Models;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpajzManager.Api.Entities
@@ -18,6 +19,9 @@ namespace SpajzManager.Api.Entities
 
         public ICollection<Item> Items { get; set; }
             = new List<Item>();
+
+        public ICollection<Storage> Storages { get; set; }
+            = new List<Storage>();
 
         public Household(string name) 
         {

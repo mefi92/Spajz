@@ -106,5 +106,25 @@ namespace SpajzManager.Api.Services
         {
             _context.Items.Remove(item);
         }
+
+        public async Task<bool> StorageExistsAsync(int householdId, int storageId)
+        {
+            return await _context.Households
+                .AnyAsync(h => h.Id == householdId && h.Storages.Any(s => s.Id == storageId));
+        }
+
+        public async Task AddItemToStorageAsync(int storageId, Item item)
+        {
+            var storage = await _context.Storages
+                .FirstOrDefaultAsync(s => s.Id == storageId);
+
+            if (storage == null)
+            {
+                throw new ArgumentException("Storage not found.");
+            }
+
+            item.StorageId = storageId;
+            await _context.Items.AddAsync(item);
+        }
     }
 }

@@ -8,6 +8,8 @@ namespace SpajzManager.Api.DbContexts
         public DbSet<Household> Households { get; set; }
         public DbSet<Item> Items { get; set; }
 
+        public DbSet<Storage> Storages { get; set; }
+
         public SpajzManagerContext(DbContextOptions<SpajzManagerContext> options)
             : base(options)
         {            
