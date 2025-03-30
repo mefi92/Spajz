@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using SpajzManager.Api.Entities;
 using SpajzManager.Api.Models;
@@ -146,6 +147,48 @@ namespace SpajzManager.Api.Controllers
             await _spajzManagerRepository.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        [HttpPatch("{householdid}/storages/{storageid}")]
+        public async Task<ActionResult> PartiallyUpdateStorage(
+            int householdId,
+            int storageId,
+            JsonPatchDocument<StorageForUpdateDto> patchDocument)
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                return NotFound();
+            }
+
+            var storageEntity = await _spajzManagerRepository
+                .GetStorageForHouseholdAsync(householdId, storageId);
+
+            if (storageEntity == null ||
+                storageEntity.HouseholdId != householdId)
+            {
+                return NotFound();
+            }
+
+            var storageToPath = _mapper.Map<StorageForUpdateDto>(storageEntity);
+
+            patchDocument.ApplyTo(storageToPath, ModelState);
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (!TryValidateModel(storageToPath))
+            {
+                return BadRequest();
+            }
+
+            _mapper.Map(storageToPath, storageEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            return NoContent();
+
         }
 
         [HttpDelete("{householdid}/storages/{storageid}")]
