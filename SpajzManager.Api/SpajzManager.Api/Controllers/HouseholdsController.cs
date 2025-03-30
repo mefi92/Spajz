@@ -120,6 +120,32 @@ namespace SpajzManager.Api.Controllers
                       storageid = createdStorage.Id},
                 createdStorage);        
         }
+
+        [HttpPut("{householdid}/storages/{storageid}")]
+        public async Task<ActionResult<StorageDto>> UpdateStorage(
+            int householdId,
+            int storageId,
+            StorageForUpdateDto storage)
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                return NotFound();
+            }
+
+            var storageEntity = await _spajzManagerRepository
+                .GetStorageForHouseholdAsync(householdId, storageId);
+
+            if (storageEntity == null)
+            {
+                return NotFound();
+            }
+
+            _mapper.Map(storage, storageEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
 

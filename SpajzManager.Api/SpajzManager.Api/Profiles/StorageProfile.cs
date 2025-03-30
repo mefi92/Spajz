@@ -8,6 +8,7 @@ namespace SpajzManager.Api.Profiles
         {
             CreateMap<Entities.Storage, Models.StorageDto>();
             CreateMap<Models.StorageForCreationDto, Entities.Storage>();
+            CreateMap<Models.StorageForUpdateDto, Entities.Storage>();
         }
     }
 }
