@@ -54,6 +54,11 @@ namespace SpajzManager.Api.Controllers
         public async Task<ActionResult<IEnumerable<StorageDto>>> GetStorages(
             int householdId)
         {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                return NotFound();
+            }
+
             var storages = await _spajzManagerRepository
                 .GetStoragesForHouseholdAsync(householdId);
 
@@ -61,10 +66,13 @@ namespace SpajzManager.Api.Controllers
             {
                 return NotFound();
             }
-            return Ok(_mapper.Map<IEnumerable<StorageDto>>(storages));
+
+            var storagesToReturn = _mapper.Map<IEnumerable<StorageDto>>(storages);
+
+            return Ok(storagesToReturn);
         }
 
-        [HttpGet("{householdid}/storages/{storageid}")]
+        [HttpGet("{householdid}/storages/{storageid}", Name = "GetStorage")]
         public async Task<ActionResult<StorageDto>> GetStorage(
             int householdId,
             int storageId)
@@ -107,8 +115,9 @@ namespace SpajzManager.Api.Controllers
 
             var createdStorage = _mapper.Map<StorageDto>(newStorage);
 
-            return CreatedAtRoute("GetStorages",
-                new { storageid = id },
+            return CreatedAtRoute("GetStorage",
+                new { householdid = id,
+                      storageid = createdStorage.Id},
                 createdStorage);        
         }
     }
