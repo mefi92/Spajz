@@ -7,8 +7,9 @@ namespace SpajzManager.Api.DbContexts
     {
         public DbSet<Household> Households { get; set; }
         public DbSet<Item> Items { get; set; }
-
         public DbSet<Storage> Storages { get; set; }
+        public DbSet<StorageType> StorageTypes { get; set; }
+
 
         public SpajzManagerContext(DbContextOptions<SpajzManagerContext> options)
             : base(options)
@@ -33,29 +34,20 @@ namespace SpajzManager.Api.DbContexts
                 {
                     Id = 3,
                     Description = "Nyaraló"
-                });
-
-            modelBuilder.Entity<Storage>()
-                .HasData(
-                new Storage("Hűtőszekrény")
-                {
-                    Id = 1,
-                    HouseholdId = 1
-                },
-                new Storage("Kamra")
-                {
-                    Id = 2,
-                    HouseholdId = 1
-                },
-                new Storage("Fagyasztó")
-                {
-                    Id = 3,
-                    HouseholdId = 2
-                });
+                });            
 
             modelBuilder.Entity<Item>()
                         .Property(i => i.CreatedAt)
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+            modelBuilder.Entity<StorageType>().HasData(
+                new StorageType { Id = 1, Name = "Ideiglenes tároló" },
+                new StorageType { Id = 2, Name = "Hűtő" },
+                new StorageType { Id = 3, Name = "Fagyasztó" },
+                new StorageType { Id = 4, Name = "Tároló "},
+                new StorageType { Id = 5, Name = "Spájz" },
+                new StorageType { Id = 6, Name = "Pince" }
+                );
 
             base.OnModelCreating(modelBuilder);
         }

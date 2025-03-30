@@ -130,7 +130,7 @@ namespace SpajzManager.Api.Services
         {
             return await _context.Storages
                 .Where(s => s.HouseholdId == householdId)
-                .OrderBy(s => s.Name)
+                .OrderBy(s => s.StorageTypeId)
                 .ToListAsync();
         }
 

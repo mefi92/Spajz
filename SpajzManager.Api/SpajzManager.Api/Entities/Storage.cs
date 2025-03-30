@@ -12,8 +12,10 @@ namespace SpajzManager.Api.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string Name { get; set; } = string.Empty;
+        public int StorageTypeId { get; set; }
+
+        [ForeignKey("StorageTypeId")]
+        public StorageType? Type { get; set; }
 
         [ForeignKey("HouseholdId")]
         public Household? Household { get; set; }
@@ -22,9 +24,9 @@ namespace SpajzManager.Api.Entities
         [MaxLength(200)]
         public string? Description { get; set; }
 
-        public Storage(string name)
+        public Storage(int storageTypeId)
         {
-            Name = name;
+            StorageTypeId = storageTypeId;
         }
     }
 }

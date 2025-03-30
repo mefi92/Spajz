@@ -7,7 +7,7 @@ namespace SpajzManager.Api.Models
     public class StorageDto
     {
         public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
+        public int StorageTypeId { get; set; }
         public string? Description { get; set; }
     }
 }
