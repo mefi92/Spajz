@@ -150,5 +150,10 @@ namespace SpajzManager.Api.Services
                 .Where(s => s.HouseholdId == householdId && s.Id == storageId)
                 .FirstOrDefaultAsync();
         }
+
+        public void DeleteStorate(Storage storage)
+        {
+            _context.Storages.Remove(storage);
+        }
     }
 }

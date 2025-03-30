@@ -135,12 +135,39 @@ namespace SpajzManager.Api.Controllers
             var storageEntity = await _spajzManagerRepository
                 .GetStorageForHouseholdAsync(householdId, storageId);
 
-            if (storageEntity == null)
+            if (storageEntity == null || 
+                storageEntity.HouseholdId != householdId)
             {
                 return NotFound();
             }
 
             _mapper.Map(storage, storageEntity);
+
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        [HttpDelete("{householdid}/storages/{storageid}")]
+        public async Task<ActionResult> DeleteStorage(
+            int householdId,
+            int storageId)
+        {
+            if (!await _spajzManagerRepository.HouseholdExistsAsync(householdId))
+            {
+                return NotFound();
+            }
+
+            var storageEntity = await _spajzManagerRepository
+                .GetStorageForHouseholdAsync(householdId, storageId);
+
+            if (storageEntity == null ||
+                storageEntity.HouseholdId != householdId)
+            {
+                return NotFound();
+            }
+
+            _spajzManagerRepository.DeleteStorate(storageEntity);
 
             await _spajzManagerRepository.SaveChangesAsync();
 

@@ -19,5 +19,6 @@ namespace SpajzManager.Api.Services
         Task<IEnumerable<Storage>> GetStoragesForHouseholdAsync(int householdId);
         Task<Storage?> GetStorageForHouseholdAsync(int householdId, int storageId);
         Task AddStorageForHouseholdAsync(int householdId, Storage storage);
+        void DeleteStorate(Storage storage);
     }
 }
