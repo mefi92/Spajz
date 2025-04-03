@@ -16,18 +16,22 @@ namespace SpajzManager.Api.Services
 
         public async Task<Household?> GetHouseholdAsync(
             int householdId,
-            bool includeItems)
+            bool includeItems,
+            bool includeStorages)
         {
+            var query = _context.Households.AsQueryable();
+
             if (includeItems)
             {
-                return await _context.Households
-                    .Include(h => h.Items)
-                    .Include(s => s.Storages)
-                    .Where(h => h.Id == householdId).FirstOrDefaultAsync();
+                query = query.Include(h => h.Items);
             }
 
-            return await _context.Households
-                .Where(h => h.Id == householdId).FirstOrDefaultAsync();
+            if (includeStorages)
+            {
+                query = query.Include(h => h.Storages);
+            }
+
+            return await query.FirstOrDefaultAsync(h => h.Id == householdId);
         }
 
         public async Task<IEnumerable<Household>> GetHouseholdsAsync()
@@ -98,7 +102,7 @@ namespace SpajzManager.Api.Services
         public async Task AddItemForHouseholdAsync(int householdId, 
             Item item)
         {
-            var household = await GetHouseholdAsync(householdId, false);
+            var household = await GetHouseholdAsync(householdId, false, false);
             if (household != null)
             {
                 household.Items.Add(item);
@@ -145,7 +149,7 @@ namespace SpajzManager.Api.Services
 
         public async Task AddStorageForHouseholdAsync(int householdId, Storage storage)
         {
-            var household = await GetHouseholdAsync(householdId, false);
+            var household = await GetHouseholdAsync(householdId, false, false);
 
             if (household != null)
             {
@@ -153,8 +157,11 @@ namespace SpajzManager.Api.Services
             }
         }
 
-        public async Task<Storage?> GetStorageForHouseholdAsync(int householdId, int storageId)
+        public async Task<Storage?> GetStorageForHouseholdAsync(
+            int householdId,
+            int storageId)
         {
+            
             return await _context.Storages
                 .Where(s => s.HouseholdId == householdId && s.Id == storageId)
                 .FirstOrDefaultAsync();

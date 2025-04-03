@@ -5,7 +5,7 @@ namespace SpajzManager.Api.Services
     public interface ISpajzManagerRepository
     {
         Task<IEnumerable<Household>> GetHouseholdsAsync();
-        Task<Household?> GetHouseholdAsync(int householdId, bool includeItems);
+        Task<Household?> GetHouseholdAsync(int householdId, bool includeItems, bool includeStorages);
         Task<bool> HouseholdExistsAsync(int householdId);
         Task<bool> HouseholdExistsAsync(string householdName);
         Task AddHouseholdAsync(Household household);

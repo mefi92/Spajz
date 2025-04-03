@@ -32,9 +32,11 @@ namespace SpajzManager.Api.Controllers
 
         [HttpGet("{householdid}", Name = "GetHousehold")]
         public async Task<IActionResult> GetHousehold(
-            int householdId, bool includeItems = false)
+            int householdId,
+            bool includeItems = false,
+            bool includeStorages = false)
         {
-            var household = await _spajzManagerRepository.GetHouseholdAsync(householdId, includeItems);
+            var household = await _spajzManagerRepository.GetHouseholdAsync(householdId, includeItems, includeStorages);
             if (household == null)
             {
                 return NotFound();
@@ -231,6 +233,8 @@ namespace SpajzManager.Api.Controllers
             {
                 return NotFound();
             }
+
+            // var itemsInStorage = await _spajzManagerRepository.GetItemsForStorageAsync(storageId); Todo!!!
 
             _spajzManagerRepository.DeleteStorate(storageEntity);
 
