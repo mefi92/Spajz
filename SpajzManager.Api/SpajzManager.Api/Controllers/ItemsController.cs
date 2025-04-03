@@ -188,7 +188,7 @@ namespace SpajzManager.Api.Controllers
         {
 
             var household = await _spajzManagerRepository
-                .GetHouseholdAsync(householdId, false);
+                .GetHouseholdAsync(householdId, true);
 
             if ( household == null)
             {

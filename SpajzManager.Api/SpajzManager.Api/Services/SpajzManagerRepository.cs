@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SpajzManager.Api.DbContexts;
 using SpajzManager.Api.Entities;
+using SpajzManager.Api.Models;
 
 namespace SpajzManager.Api.Services
 {
@@ -19,11 +20,13 @@ namespace SpajzManager.Api.Services
         {
             if (includeItems)
             {
-                return await _context.Households.Include(h => h.Items)
+                return await _context.Households
+                    .Include(h => h.Items)
+                    .Include(s => s.Storages)
                     .Where(h => h.Id == householdId).FirstOrDefaultAsync();
             }
 
-            return await _context.Households.Include(s => s.Storages)
+            return await _context.Households
                 .Where(h => h.Id == householdId).FirstOrDefaultAsync();
         }
 
@@ -35,6 +38,11 @@ namespace SpajzManager.Api.Services
         public async Task<bool> HouseholdExistsAsync(int householdId)
         {
             return await _context.Households.AnyAsync(h => h.Id == householdId);
+        }
+
+        public async Task<bool> HouseholdExistsAsync(string householdName)
+        {
+            return await _context.Households.AnyAsync(h => h.Name == householdName);
         }
 
         public async Task<Item?> GetItemForHouseholdAsync(
@@ -54,6 +62,7 @@ namespace SpajzManager.Api.Services
                 .OrderBy(i => i.Name)
                 .ToListAsync();
         }
+
         public async Task<(IEnumerable<Item>, PaginationMetadata)> GetItemsForHouseholdAsync(
             int householdId, string? name, string? searchQuery,
             int pageNumber, int pageSize)
@@ -154,6 +163,14 @@ namespace SpajzManager.Api.Services
         public void DeleteStorate(Storage storage)
         {
             _context.Storages.Remove(storage);
+        }
+
+        public async Task AddHouseholdAsync(Household household)
+        {
+            if (household != null)
+            {
+                await _context.Households.AddAsync(household);
+            }
         }
     }
 }

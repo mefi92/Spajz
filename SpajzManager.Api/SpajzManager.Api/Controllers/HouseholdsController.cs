@@ -5,9 +5,6 @@ using SpajzManager.Api.Entities;
 using SpajzManager.Api.Models;
 using SpajzManager.Api.Services;
 
-
-//todo: azt kéne hogy le lehessen kérdezni egy householdnak milyen storage-ei vannak. lehessen postolni. a
-
 namespace SpajzManager.Api.Controllers
 {
     [ApiController]
@@ -33,11 +30,11 @@ namespace SpajzManager.Api.Controllers
             return Ok(_mapper.Map<IEnumerable<HouseholdWithoutItemsDto>>(householdEntities));
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{householdid}", Name = "GetHousehold")]
         public async Task<IActionResult> GetHousehold(
-            int id, bool includeItems = false)
+            int householdId, bool includeItems = false)
         {
-            var household = await _spajzManagerRepository.GetHouseholdAsync(id, includeItems);
+            var household = await _spajzManagerRepository.GetHouseholdAsync(householdId, includeItems);
             if (household == null)
             {
                 return NotFound();
@@ -49,6 +46,31 @@ namespace SpajzManager.Api.Controllers
             }
 
             return Ok(_mapper.Map<HouseholdWithoutItemsDto>(household));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<HouseholdDto>> CreateHousehold(
+            HouseholdForCreationDto householdDto)
+        {
+            if (await _spajzManagerRepository.HouseholdExistsAsync(householdDto.Name))
+            {
+                return Conflict("Household with this name already exists");
+            }
+            
+            var newHousehold = _mapper.Map<Household>(householdDto);
+
+            await _spajzManagerRepository.AddHouseholdAsync(newHousehold);
+
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            var createdHousehold = _mapper.Map<HouseholdDto>(newHousehold);
+
+            return CreatedAtRoute("GetHousehold",
+                new
+                {
+                    householdid = createdHousehold.Id,
+                },
+                createdHousehold);
         }
 
         [HttpGet("{householdid}/storages", Name = "GetStorages")]

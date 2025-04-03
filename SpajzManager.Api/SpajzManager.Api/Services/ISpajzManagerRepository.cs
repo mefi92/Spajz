@@ -7,6 +7,8 @@ namespace SpajzManager.Api.Services
         Task<IEnumerable<Household>> GetHouseholdsAsync();
         Task<Household?> GetHouseholdAsync(int householdId, bool includeItems);
         Task<bool> HouseholdExistsAsync(int householdId);
+        Task<bool> HouseholdExistsAsync(string householdName);
+        Task AddHouseholdAsync(Household household);
         Task<IEnumerable<Item>> GetItemsForHouseholdAsync(int householdId);
         Task<(IEnumerable<Item>, PaginationMetadata)> GetItemsForHouseholdAsync(
             int householdId, string? name, string? searchQuery, int pageNumber, int pageSize);

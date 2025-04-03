@@ -8,6 +8,7 @@ namespace SpajzManager.Api.Profiles
         {
             CreateMap<Entities.Household, Models.HouseholdWithoutItemsDto>();
             CreateMap<Entities.Household, Models.HouseholdDto>();
+            CreateMap<Models.HouseholdForCreationDto, Entities.Household>();
         }
     }
 }
