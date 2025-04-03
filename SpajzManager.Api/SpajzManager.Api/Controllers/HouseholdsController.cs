@@ -248,6 +248,35 @@ namespace SpajzManager.Api.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{householdid}")]
+        public async Task<ActionResult> DeleteHousehold(
+            int householdId)
+        {
+            var household = await _spajzManagerRepository
+                .GetHouseholdAsync(householdId, true, true);
+
+            if (household == null)
+            {
+                return NotFound();
+            }
+
+            foreach (var item in household.Items)
+            {
+                _spajzManagerRepository.DeleteItem(item);
+            }
+
+
+            foreach (var storage in household.Storages)
+            {
+                _spajzManagerRepository.DeleteStorate(storage);
+            }
+
+            _spajzManagerRepository.DeleteHousehold(household);
+            await _spajzManagerRepository.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }
 

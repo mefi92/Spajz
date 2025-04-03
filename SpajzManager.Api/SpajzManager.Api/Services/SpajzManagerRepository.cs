@@ -186,5 +186,10 @@ namespace SpajzManager.Api.Services
 
             return !items.Any(item => item.StorageId == storageId);
         }
+
+        public void DeleteHousehold(Household household)
+        {
+            _context.Households.Remove(household);
+        }
     }
 }

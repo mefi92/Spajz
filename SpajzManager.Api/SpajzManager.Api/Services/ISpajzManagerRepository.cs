@@ -23,5 +23,6 @@ namespace SpajzManager.Api.Services
         Task AddStorageForHouseholdAsync(int householdId, Storage storage);
         Task<bool> IsStorageEmptyAsync(int householdId, int storageId);
         void DeleteStorate(Storage storage);
+        void DeleteHousehold(Household household);
     }
 }
