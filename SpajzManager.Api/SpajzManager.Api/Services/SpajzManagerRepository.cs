@@ -179,5 +179,12 @@ namespace SpajzManager.Api.Services
                 await _context.Households.AddAsync(household);
             }
         }
+
+        public async Task<bool> IsStorageEmptyAsync(int householdId, int storageId)
+        {
+            var items = await GetItemsForHouseholdAsync(householdId);
+
+            return !items.Any(item => item.StorageId == storageId);
+        }
     }
 }

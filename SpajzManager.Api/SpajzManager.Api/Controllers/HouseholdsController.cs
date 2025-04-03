@@ -234,7 +234,13 @@ namespace SpajzManager.Api.Controllers
                 return NotFound();
             }
 
-            // var itemsInStorage = await _spajzManagerRepository.GetItemsForStorageAsync(storageId); Todo!!!
+            var isStorageEmpty = await _spajzManagerRepository
+                .IsStorageEmptyAsync(householdId, storageId);
+
+            if (!isStorageEmpty)
+            {
+                return BadRequest("This storage is not empty. Please move all items before deletion.");
+            }
 
             _spajzManagerRepository.DeleteStorate(storageEntity);
 
